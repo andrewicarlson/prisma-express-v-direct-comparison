@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+model Component {
+  id                          Int @id @default(autoincrement())
+  alias                       String
+  archived                    Boolean
+  category                    String
+  companyId                   Int
+  created                     Int
+  libraryId                   Int
+  name                        String
+  revision                    String?
+  status                      String?
+
+  // Relations
+  companyObj                  Company @relation(fields: [companyId], references: [id])
+  libraryObj                  Library @relation(fields: [libraryId], references: [id])
+
+  @@map("components")
+}
+
+model Company {
+  id                          Int @id @default(autoincrement())
+  archived                    Boolean
+  created                     Int
+  creatorId                   Int
+  name                        String
+  // Relations
+  Components                  Component[]
+  Libraries                   Library[]
+
+  @@map("companies")
+}
+
+model Library {
+  id                          Int @id @default(autoincrement())
+  archived                    Boolean
+  companyId                   Int?
+  created                     Int
+  name                        String
+  type                        LibraryType?
+  // Relations
+  companyObj                  Company? @relation(fields: [companyId], references: [id])
+  Components                  Component[]
+
+  @@map("libraries")
+}
+
+enum LibraryType {
+  GENERAL
+  PERSONAL
+}
